@@ -1,72 +1,104 @@
 import java.util.*;
 
 public class Experiment {
-    private List<long[]> results;
+
+    private long[][] results;
+    private int[] sizes;
 
     public Experiment() {
-        results = new ArrayList<>();
+        sizes   = new int[]{10, 30, 100};
+        results = new long[sizes.length][2];
     }
 
-    public void runTraversals(Graph g, String label, int start) {
-        System.out.println("\n--- " + label + " ---");
-        System.out.println("Vertices: " + g.getVertexCount() + " | Edges: " + g.getEdgeCount());
-        long bfsStart = System.nanoTime();
-        g.bfs(start);
-        long bfsEnd = System.nanoTime();
-        long bfsTime = bfsEnd - bfsStart;
-
-        long dfsStart = System.nanoTime();
-        g.dfs(start);
-        long dfsEnd = System.nanoTime();
-        long dfsTime = dfsEnd - dfsStart;
-
-        System.out.println("BFS time: " + bfsTime + " ns");
-        System.out.println("DFS time: " + dfsTime + " ns");
-
-        results.add(new long[]{g.getVertexCount(), bfsTime, dfsTime});
+    public void runTraversals(Graph g) {
+        System.out.println("--- Traversal output for graph with "
+                + g.getVertexCount() + " vertices ---");
+        g.bfs(0);
+        g.dfs(0);
+        System.out.println();
     }
 
     public void runMultipleTests() {
-        System.out.println("GRAPH TRAVERSAL EXPERIMENT RESULTS");
+        System.out.println("--- Performance Tests ---");
+        for (int i = 0; i < sizes.length; i++) {
+            int size = sizes[i];
+            Graph g = buildGraph(size);
 
-        Graph small = buildGraph(10);
-        runTraversals(small, "Small Graph (10 vertices)", 0);
+            long startBFS = System.nanoTime();
+            bfsSilent(g, 0);
+            long endBFS = System.nanoTime();
+            results[i][0] = endBFS - startBFS;
 
-        Graph medium = buildGraph(30);
-        runTraversals(medium, "Medium Graph (30 vertices)", 0);
+            long startDFS = System.nanoTime();
+            dfsSilent(g, 0);
+            long endDFS = System.nanoTime();
+            results[i][1] = endDFS - startDFS;
 
-        Graph large = buildGraph(100);
-        runTraversals(large, "Large Graph (100 vertices)", 0);
+            System.out.println("Size " + size + " | V=" + g.getVertexCount()
+                    + " E=" + g.getEdgeCount()
+                    + " | BFS=" + results[i][0] + " ns"
+                    + " | DFS=" + results[i][1] + " ns");
+        }
     }
 
-    private Graph buildGraph(int n) {
-        Graph g = new Graph();
+    public void printResults() {
+        System.out.println();
+        System.out.println("===== Performance Comparison Table =====");
+        System.out.printf("%-14s %-20s %-20s%n",
+                "Graph Size (V)", "BFS Time (ns)", "DFS Time (ns)");
+        System.out.println("-".repeat(56));
+        for (int i = 0; i < sizes.length; i++) {
+            System.out.printf("%-14d %-20d %-20d%n",
+                    sizes[i], results[i][0], results[i][1]);
+        }
+        System.out.println();
+    }
 
-        for (int i = 0; i < n; i++) {
+    public static Graph buildGraph(int size) {
+        Graph g = new Graph();
+        for (int i = 0; i < size; i++) {
             g.addVertex(new Vertex(i));
         }
-        for (int i = 0; i < n - 1; i++) {
-            g.addEdge(i, i + 1);
+        for (int i = 0; i < size; i++) {
+            g.addEdge(i, (i + 1) % size);
         }
-        for (int i = 0; i + 3 < n; i += 3) {
-            g.addEdge(i, i + 3);
-        }
-        for (int i = 5; i < n; i += 5) {
-            g.addEdge(i, i - 5);
+        for (int i = 0; i < size - 2; i += 3) {
+            g.addEdge(i, (i + 2) % size);
         }
         return g;
     }
 
-    public void printResults() {
-        System.out.println("\nPERFORMANCE SUMMARY TABLE");
+    private void bfsSilent(Graph g, int start) {
+        Set<Integer> visited = new HashSet<>();
+        Queue<Integer> queue = new LinkedList<>();
+        visited.add(start);
+        queue.offer(start);
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
+            for (int[] neighbor : g.getNeighbors(current)) {
+                if (!visited.contains(neighbor[0])) {
+                    visited.add(neighbor[0]);
+                    queue.offer(neighbor[0]);
+                }
+            }
+        }
+    }
 
-        for (long[] row : results) {
-            long vertices = row[0];
-            long bfsTime  = row[1];
-            long dfsTime  = row[2];
-            String faster = bfsTime < dfsTime ? "BFS" : "DFS";
-
-            System.out.println("Vertices: " + vertices + " | BFS: " + bfsTime + " ns" + " | DFS: " + dfsTime + " ns" + " | Faster: " + faster);
+    private void dfsSilent(Graph g, int start) {
+        Set<Integer> visited = new HashSet<>();
+        Deque<Integer> stack = new ArrayDeque<>();
+        stack.push(start);
+        while (!stack.isEmpty()) {
+            int current = stack.pop();
+            if (!visited.contains(current)) {
+                visited.add(current);
+                List<int[]> neighbors = g.getNeighbors(current);
+                for (int i = neighbors.size() - 1; i >= 0; i--) {
+                    if (!visited.contains(neighbors.get(i)[0])) {
+                        stack.push(neighbors.get(i)[0]);
+                    }
+                }
+            }
         }
     }
 }

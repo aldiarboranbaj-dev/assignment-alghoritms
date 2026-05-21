@@ -1,10 +1,20 @@
+/**
+ * Edge represents a directed connection between two vertices.
+ * Now includes a weight field for Dijkstra's algorithm.
+ */
 public class Edge {
+
     private Vertex source;
     private Vertex destination;
+    private int weight;  // added for Dijkstra
 
-    public Edge(Vertex source, Vertex destination) {
+    /**
+     * Constructs a weighted edge from source to destination.
+     */
+    public Edge(Vertex source, Vertex destination, int weight) {
         this.source = source;
         this.destination = destination;
+        this.weight = weight;
     }
 
     public Vertex getSource() {
@@ -15,8 +25,12 @@ public class Edge {
         return destination;
     }
 
+    public int getWeight() {
+        return weight;
+    }
+
     @Override
     public String toString() {
-        return source.toString() + " -> " + destination.toString();
+        return source.getId() + " -(" + weight + ")-> " + destination.getId();
     }
 }

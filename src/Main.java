@@ -2,45 +2,36 @@ public class Main {
 
     public static void main(String[] args) {
 
-        System.out.println("\nSMALL GRAPH (10 vertices) - DEMO\n");
+        System.out.println("  SMALL GRAPH (10 vertices)");
 
-        Graph smallGraph = new Graph();
-
-        for (int i = 0; i < 10; i++) {
-            smallGraph.addVertex(new Vertex(i));
-        }
-
-        smallGraph.addEdge(0, 1);
-        smallGraph.addEdge(0, 3);
-        smallGraph.addEdge(1, 2);
-        smallGraph.addEdge(1, 4);
-        smallGraph.addEdge(2, 5);
-        smallGraph.addEdge(3, 4);
-        smallGraph.addEdge(3, 6);
-        smallGraph.addEdge(4, 5);
-        smallGraph.addEdge(4, 7);
-        smallGraph.addEdge(5, 8);
-        smallGraph.addEdge(6, 7);
-        smallGraph.addEdge(7, 8);
-        smallGraph.addEdge(7, 9);
-        smallGraph.addEdge(8, 9);
-
+        Graph smallGraph = Experiment.buildGraph(10);
         smallGraph.printGraph();
         System.out.println();
 
-        long bfsStart = System.nanoTime();
-        smallGraph.bfs(0);
-        long bfsEnd = System.nanoTime();
-        System.out.println("BFS execution time: " + (bfsEnd - bfsStart) + " ns");
+        Experiment exp = new Experiment();
+        exp.runTraversals(smallGraph);
 
-        long dfsStart = System.nanoTime();
-        smallGraph.dfs(0);
-        long dfsEnd = System.nanoTime();
-        System.out.println("DFS execution time: " + (dfsEnd - dfsStart) + " ns");
+        System.out.println("  DIJKSTRA (weighted graph, 6 vertices)");
 
+
+        Graph weighted = new Graph();
+        for (int i = 0; i < 6; i++) weighted.addVertex(new Vertex(i));
+
+        weighted.addEdge(0, 1, 4);
+        weighted.addEdge(0, 2, 1);
+        weighted.addEdge(2, 1, 2);
+        weighted.addEdge(1, 3, 1);
+        weighted.addEdge(2, 3, 5);
+        weighted.addEdge(3, 4, 3);
+        weighted.addEdge(4, 5, 2);
+
+        weighted.printGraph();
         System.out.println();
-        Experiment experiment = new Experiment();
-        experiment.runMultipleTests();
-        experiment.printResults();
+        weighted.dijkstra(0);
+
+        System.out.println("  PERFORMANCE EXPERIMENTS");
+
+        exp.runMultipleTests();
+        exp.printResults();
     }
 }

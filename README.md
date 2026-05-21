@@ -190,3 +190,23 @@ perf(cleanup): improved code readability and comments
 docs(readme): added analysis and experimental results
 release: v1.0
 ```
+
+#  Bonus Task
+
+## Bonus Task: Dijkstra’s Algorithm (Shortest Path)
+
+This project was extended with an implementation of Dijkstra’s Algorithm to calculate the shortest path from a starting vertex to all other vertices in a weighted graph.
+
+
+# Features Implemented
+
+## Weighted Graph Support
+The graph structure was updated to support weighted edges.
+
+### Changes in Edge.java
+- Added `weight` field
+- Updated constructor to include edge weight
+
+Example:
+```java
+Edge(int from, int to, int weight)
